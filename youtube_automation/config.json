@@ -1,0 +1,14 @@
+{
+  "channel_niche": "technology, AI, gadgets, future tech",
+  "language": "en",
+  "videos_per_day": 4,
+  "video_duration_minutes": 4,
+  "visibility": "private",
+  "publish_hours_utc": [4, 9, 14, 19],
+  "max_trend_age_hours": 48,
+  "min_trend_score": 0,
+  "brand": {
+    "channel_name": "Your Life",
+    "description": "Original faceless technology videos generated from current public trends."
+  }
+}
