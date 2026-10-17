@@ -195,6 +195,8 @@ body{background:#250711;color:#fff4dc}.shell{max-width:560px;margin:auto;backgro
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
+// Keep interactive dialogs outside the visually hidden legacy content wrapper.
+['prankModal','featureModal'].forEach(id=>{const el=$(id);if(el&&el.parentElement!==document.body)document.body.appendChild(el)});
 const modal=$('prankModal'),stage=$('stage'),emoji=$('bigEmoji'),count=$('stageCount'),caption=$('stageCaption'),reveal=$('reveal'),start=$('startPrank'),replay=$('replayPrank');
 let current='cracker',running=false,timers=[],audioCtx=null,soundEnabled=true,toastTimer=null;
 const PRANKS={
@@ -219,10 +221,10 @@ function runPrank(){if(running)return;resetStage();running=true;start.disabled=t
 document.querySelectorAll('[data-prank]').forEach(btn=>btn.addEventListener('click',()=>openPrank(btn.dataset.prank)));
 start.addEventListener('click',runPrank);replay.addEventListener('click',()=>{resetStage();runPrank()});$('closeModal').addEventListener('click',closePrank);
 modal.addEventListener('click',e=>{if(e.target===modal)closePrank()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closePrank()});
-function toggleSound(){soundEnabled=!soundEnabled;$('soundToggle').textContent=soundEnabled?'♫':'🔇';$('soundToggle').setAttribute('aria-label',soundEnabled?'Mute sound':'Enable sound');$('soundCheck').checked=soundEnabled;toast(soundEnabled?'Comic sound on':'Sound muted')}
-$('soundToggle').addEventListener('click',toggleSound);$('soundCheck').addEventListener('change',e=>{soundEnabled=e.target.checked;$('soundToggle').textContent=soundEnabled?'♫':'🔇';if(soundEnabled)playSound('reveal')});
+function toggleSound(){soundEnabled=!soundEnabled;if($('soundToggle')){$('soundToggle').textContent=soundEnabled?'♫':'🔇';$('soundToggle').setAttribute('aria-label',soundEnabled?'Mute sound':'Enable sound')}if($('soundCheck'))$('soundCheck').checked=soundEnabled;toast(soundEnabled?'Comic sound on':'Sound muted')}
+$('soundToggle')?.addEventListener('click',toggleSound);$('soundCheck')?.addEventListener('change',e=>{soundEnabled=e.target.checked;if($('soundToggle'))$('soundToggle').textContent=soundEnabled?'♫':'🔇';if(soundEnabled)playSound('reveal')});
 async function shareApp(){const data={title:'Diwali Prank Box',text:'Try these tiny Diwali pranks with me 😂🪔',url:location.href};try{if(navigator.share){await navigator.share(data);return}if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(location.href);toast('App link copied — send it to your squad!');return}const input=document.createElement('textarea');input.value=location.href;input.style.position='fixed';input.style.opacity='0';document.body.appendChild(input);input.select();const ok=document.execCommand('copy');input.remove();toast(ok?'App link copied!':'Copy this link: '+location.href)}catch(e){if(e&&e.name!=='AbortError')toast('Share cancelled. You can copy the address bar link.')}}
-$('shareTop').addEventListener('click',shareApp);$('shareFooter').addEventListener('click',shareApp);$('aboutBtn').addEventListener('click',()=>toast('A playful, offline-friendly Diwali prank playground. No login, no recording, no real fireworks.'));
+$('shareTop')?.addEventListener('click',shareApp);$('shareFooter')?.addEventListener('click',shareApp);$('aboutBtn')?.addEventListener('click',()=>toast('A playful, offline-friendly Diwali prank playground. No login, no recording, no real fireworks.'));
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 
 const featureModal=$('featureModal'),featureTitle=$('featureTitle'),featureSub=$('featureSub'),featureBody=$('featureBody');
