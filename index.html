@@ -83,7 +83,8 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const state={gender:'Men',age:'Adults',type:'Kurta Set',budget:12000,height:'Any height',skin:'Any skin tone',color:'Any color',fabrics:[],regions:[],fits:[],occasion:'Diwali Party',sort:'Featured',search:'',wishlist:[]};
-try{state.wishlist=JSON.parse(localStorage.getItem('diwaliStyleWishlist')||'[]').map(w=>typeof w==='string'?{key:w,title:w,query:w}:w)}catch(e){state.wishlist=[]}\nconst productCache=new Map();
+try{state.wishlist=JSON.parse(localStorage.getItem('diwaliStyleWishlist')||'[]').map(w=>typeof w==='string'?{key:w,title:w,query:w}:w)}catch(e){state.wishlist=[]}
+const productCache=new Map();
 const types=['Kurta Set','Sherwani','Lehenga','Anarkali','Sarees','Kurta Pajama','Indo-Western','Kids Ethnic Wear','Co-ord Set','Gown','Salwar Suit','Nehru Jacket'];
 const heights=['Any height','Below 4′6″','4′6″–5′2″','5′3″–5′7″','5′8″–6′0″','Above 6′0″'];
 const skins=['Any skin tone','Fair / cool','Light / neutral','Medium / warm','Olive undertone','Deep / rich'];
