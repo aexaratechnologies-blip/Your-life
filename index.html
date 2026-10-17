@@ -276,34 +276,25 @@ function showFeature(key){
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function renderOutfits(){
   const get=id=>($(id)?.value||'').trim();
-  const gender=get('outfitGender'),age=get('outfitAge'),height=get('outfitHeight'),mood=get('outfitMood'),occasion=get('outfitOccasion'),budget=get('outfitBudget'),fit=get('outfitFit'),colour=get('outfitColour');
-  const item=get('outfitItem'),size=get('outfitSize'),build=get('outfitBuild'),fabric=get('outfitFabric'),sleeve=get('outfitSleeve'),pattern=get('outfitPattern'),weather=get('outfitWeather'),footwear=get('outfitFootwear'),priority=get('outfitDelivery');
+  const gender=get('outfitGender')||'male',age=get('outfitAge')||'20-25',budget=get('outfitBudget')||'2500',size=get('outfitSize');
   const people=gender==='any'?['male','female']:[gender],bucket=ageBucket(age),results=[];
-  const ageLabel=age==='50+'?'50+ years':age+' years';
-  const budgetText=budget==='any'?'no budget limit':'under ₹'+Number(budget).toLocaleString('en-IN');
-  const moodText={classic:'traditional Indian ethnic',modern:'Indo-western fusion',royal:'royal festive',simple:'simple comfortable festive',trendy:'trendy minimal festive'}[mood]||'festive';
-  const occasionText={puja:'puja family rituals',party:'Diwali party',casual:'casual celebration',photos:'family photos',wedding:'wedding function',office:'office festive wear'}[occasion]||'festive';
-  const heightText={'under4-6':'under 4 feet 6 inches','4-6-5-2':'4 feet 6 inches to 5 feet 2 inches','5-3-5-7':'5 feet 3 inches to 5 feet 7 inches','5-8-6':'5 feet 8 inches to 6 feet','over6':'above 6 feet','unsure':''}[height]||'';
-  const platformList=[
-   {name:'Google Shopping',url:q=>'https://www.google.com/search?tbm=shop&q='+encodeURIComponent(q)},
-   {name:'Amazon India',url:q=>'https://www.amazon.in/s?k='+encodeURIComponent(q)},
-   {name:'Flipkart',url:q=>'https://www.flipkart.com/search?q='+encodeURIComponent(q)},
-   {name:'Myntra',url:q=>'https://www.myntra.com/'+encodeURIComponent(q.trim().replace(/\s+/g,'-'))},
-   {name:'AJIO',url:q=>'https://www.ajio.com/search/?text='+encodeURIComponent(q)},
-   {name:'Meesho',url:q=>'https://www.meesho.com/search?q='+encodeURIComponent(q)},
-   {name:'Tata CLiQ Fashion',url:q=>'https://www.tatacliq.com/search/?searchCategory=all&text='+encodeURIComponent(q)},
-   {name:'Nykaa Fashion',url:q=>'https://www.nykaafashion.com/catalogsearch/result/?q='+encodeURIComponent(q)}
+  const budgetText=budget==='any'?'Any budget':'Up to ₹'+Number(budget).toLocaleString('en-IN');
+  const stores=[
+   {name:'Amazon India',url:q=>'https://www.amazon.in/s?k='+encodeURIComponent(q),note:'Marketplace'},
+   {name:'Myntra',url:q=>'https://www.myntra.com/'+encodeURIComponent(q.replace(/\s+/g,'-')),note:'Fashion store'},
+   {name:'Flipkart',url:q=>'https://www.flipkart.com/search?q='+encodeURIComponent(q),note:'Marketplace'},
+   {name:'AJIO',url:q=>'https://www.ajio.com/search/?text='+encodeURIComponent(q),note:'Fashion store'}
   ];
   people.forEach(person=>{
    const label=person==='male'?'Men / boys':'Women / girls';
-   const ageTerms=age==='5-9'?'kids 5-9 years':age==='10-15'?'teen 10-15 years':age==='16-19'?'teen 16-19 years':age==='20-25'?'young adult 20-25 years':age==='26-35'?'adult 26-35 years':age==='36-50'?'adult 36-50 years':'mature adult';
-   const terms=[label,ageTerms,item,moodText,occasionText,colour==='festive'?'festive colours':colour,fabric,sleeve,pattern,fit,size?('size '+size):'',build,heightText,weather,footwear,priority].filter(Boolean).join(' ');
-   const query=terms+(budget==='any'?'':' under Rs '+budget);
-   const idea=outfitIdeas(person,mood==='trendy'?'modern':mood,age,budget==='any'?'premium':Number(budget)<=1500?'low':Number(budget)<=4000?'mid':Number(budget)<=10000?'high':'premium',colour==='festive'?'any':colour==='emerald green'?'jewel':colour==='ivory beige gold'?'neutral':colour==='pastel pink sage'?'pastel':colour==='black'?'dark':'bright',occasion,fit==='relaxed fit'?'relaxed':fit==='tailored fit'?'tailored':'regular',height);
+   const ageTerm=age==='5-9'?'kids 5 to 9 years':age==='10-15'?'kids 10 to 15 years':age==='16-19'?'teen 16 to 19 years':age==='20-25'?'young adult':age==='26-35'?'adult':age==='36-50'?'adult mature':'mature adult';
+   const productType=person==='male'?'men boys festive ethnic kurta pajama set':'women girls festive ethnic wear kurta set';
+   const query=[productType,ageTerm,size?('size '+size):'',budget==='any'?'':'under Rs '+budget].filter(Boolean).join(' ');
    const imgs=outfitImages[person][bucket];
-   const stores=platformList.map(p=>'<a class="outfit-store-link" href="'+p.url(query)+'" target="_blank" rel="noopener noreferrer"><span>'+esc(p.name)+'</span><small>View matching products ↗</small></a>').join('');
-   const productSearch='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(query);
-   results.push('<article class="outfit-result-card"><div class="outfit-card-head"><span>'+label+'</span><span>'+esc(ageLabel)+'</span></div><div class="outfit-photo-grid"><figure><img src="'+imgs[0]+'" alt="'+label+' '+esc(moodText)+' outfit inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Style inspiration · '+esc(idea.title)+'</figcaption></figure><figure><img src="'+imgs[1]+'" alt="'+label+' alternate festive clothing inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Alternative look · compare product photos on store</figcaption></figure></div><div class="outfit-card-copy"><h3>'+esc(idea.title)+' — shopping comparison</h3><p>'+esc(idea.dress)+'</p><div class="outfit-tags"><span>Budget cap: '+esc(budgetText)+'</span><span>Preferred fit: '+esc(fit)+'</span><span>Colour: '+esc(colour)+'</span></div><p><b>Recommended styling:</b> '+esc(idea.accessories)+'. '+esc(idea.heightTip)+'</p><p><b>How comparison works:</b> the same filter query is sent to each store. Open results to compare the exact product image, current listed price, delivery, sizes and return policy. The cheapest result is not automatically the best—check fabric, seller and reviews.</p><a class="outfit-shopping-primary" href="'+productSearch+'" target="_blank" rel="noopener noreferrer">Compare products & prices on Google Shopping ↗</a><div class="outfit-store-grid">'+stores+'</div></div></article>');
+   const storeCards=stores.map(p=>'<a class="outfit-store-link" href="'+p.url(query)+'" target="_blank" rel="noopener noreferrer"><span>'+esc(p.name)+'</span><small>'+p.note+' · View products ↗</small></a>').join('');
+   const google='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(query);
+   const heading=person==='male'?'Festive Kurta / Ethnic Set':'Festive Ethnic Wear Set';
+   results.push('<article class="outfit-result-card"><div class="outfit-card-head"><span>'+label+'</span><span>'+esc(age==='50+'?'50+ years':age+' years')+'</span></div><div class="outfit-photo-grid"><figure><img src="'+imgs[0]+'" alt="'+label+' festive outfit inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Style inspiration — not a purchasable product listing</figcaption></figure><figure><img src="'+imgs[1]+'" alt="'+label+' alternative festive outfit inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Alternative style inspiration</figcaption></figure></div><div class="outfit-card-copy"><h3>'+heading+'</h3><div class="outfit-tags"><span>Budget: '+esc(budgetText)+'</span><span>Size: '+esc(size||'Choose on store')+'</span></div><p><b>Buying tip:</b> Check the exact size chart, seller ratings, fabric details, return policy and checkout price before ordering.</p><a class="outfit-shopping-primary" href="'+google+'" target="_blank" rel="noopener noreferrer">Compare current products & prices ↗</a><div class="outfit-store-grid">'+storeCards+'</div><p class="tool-note">These are live store searches, not verified individual products. The listed price and product photo are shown by the retailer after opening the search.</p></div></article>');
   });
   $('outfitResults').innerHTML=results.join('');
  }
