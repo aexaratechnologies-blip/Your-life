@@ -92,6 +92,8 @@ body{background:#250711;color:#fff4dc}.shell{max-width:560px;margin:auto;backgro
 .plan-task-label{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;color:#fff0d2}.plan-task-label input{width:19px;height:19px;accent-color:#e8bd62;flex-shrink:0;margin-top:2px}.plan-task-label span{min-width:0;overflow-wrap:anywhere}.plan-task-label b{display:block;font-size:13px;line-height:1.35}.plan-task-label small{display:block;color:#d1b2b8;font-size:10px;line-height:1.4;margin-top:4px}.plan-task-label .plan-done b{text-decoration:line-through;opacity:.65}.plan-row{gap:8px;align-items:center}.plan-row .tool-btn{flex-shrink:0;width:auto;margin:0;padding:7px 9px;font-size:11px}
 </style><style>
 .ai-result{margin-top:12px;background:#251021;border:1px solid #91634f;border-radius:12px;padding:14px;max-height:48vh;overflow:auto}.ai-result pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 system-ui,sans-serif;color:#fff0d7;margin:0}.tool-output{white-space:pre-wrap}.tool-btn:disabled{opacity:.65;cursor:wait}
+</style><style>
+.stash-count{font-size:12px;color:#e4c47d;margin:10px 0}.dv-stash-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dv-stash-category{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;text-align:left;text-decoration:none;background:linear-gradient(145deg,#4b1729,#35101f);border:1px solid #916344;border-radius:13px;padding:14px 12px;color:#f7dfa0;cursor:pointer;min-height:132px}.dv-stash-category>span{font-size:28px}.dv-stash-category b{font-size:13px;line-height:1.3;color:#fff0d2}.dv-stash-category small{font-size:10px;color:#d5b5b6;line-height:1.4}.dv-stash-category:active{transform:scale(.98)}.stash-store-results{margin-top:20px;padding-top:14px;border-top:1px solid #765044}.stash-selected-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.stash-selected-head h3{font-size:17px;color:#f6d47c;margin:0}.stash-selected-head .tool-btn{width:auto;margin:0;padding:8px 10px;font-size:11px}.stash-store-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.stash-store-grid .outfit-store-link{min-width:0;overflow-wrap:anywhere}.dv-stash-modal-grid[hidden],.stash-store-results[hidden]{display:none!important}@media(max-width:370px){.dv-stash-category{padding:11px 9px;min-height:122px}.stash-store-grid{gap:6px}}
 </style></head>
 <body>
 <div class="shell">
@@ -293,7 +295,85 @@ function showFeature(key){
  makeWish();
 
  }else if(key==='stash'){
- featureBody.innerHTML='<div class="wish-studio-intro">Browse festive decor and gifting categories. Store pages provide their current products, prices and availability.</div><div class="dv-stash-modal-grid"><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=LED+diya+set">🪔<b>LED Diya Sets</b><small>Lighting & diyas ↗</small></a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=eco+friendly+Diwali+decor">🏵️<b>Eco-friendly Decor</b><small>Decorations ↗</small></a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=Diwali+gift+hamper">🎁<b>Gift Hampers</b><small>Gifting ↗</small></a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=Diwali+rangoli+kit">🎨<b>Rangoli Kits</b><small>Rangoli essentials ↗</small></a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=Diwali+string+lights">✨<b>String Lights</b><small>Decor lighting ↗</small></a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q=Diwali+decor+toran">🌼<b>Torans & Hangings</b><small>Door decor ↗</small></a></div><p class="tool-note">For safety, choose legal, certified products and follow local rules. Prices and stock are set by the retailer; verify before checkout.</p>';
+ const stashCategories=[
+ ['🪔','LED & decorative diyas','LED diya lights Diwali'],
+ ['✨','String & fairy lights','Diwali string fairy lights'],
+ ['🏮','Lanterns & kandils','Diwali lantern kandil'],
+ ['🌼','Torans & door hangings','Diwali toran door hanging'],
+ ['🎨','Rangoli colours & kits','rangoli colour powder kit'],
+ ['🧿','Rangoli stencils','rangoli stencil reusable'],
+ ['🪷','Puja thali sets','Diwali puja thali set'],
+ ['🕉️','Puja essentials','Diwali puja samagri kit'],
+ ['🪔','Brass & metal diyas','brass diya oil lamp'],
+ ['🕯️','Candles & tealights','decorative candles tealight'],
+ ['🌺','Flower garlands','artificial marigold garland'],
+ ['🚪','Wall & entrance decor','Diwali entrance wall decor'],
+ ['🧵','Cushion covers & textiles','festive cushion covers Indian'],
+ ['🛋️','Table runners & mats','festive table runner placemat'],
+ ['🪞','Festive home decor','Indian festive home decor'],
+ ['🎁','Gift hampers','Diwali gift hamper'],
+ ['🍬','Sweets & mithai boxes','Diwali sweets mithai gift box'],
+ ['🥜','Dry fruit gift boxes','dry fruit gift box Diwali'],
+ ['🍫','Chocolates & treats','festive chocolate gift box'],
+ ['🌱','Eco-friendly gifts','eco friendly Diwali gifts'],
+ ['🧸','Kids gifts & activity kits','Diwali gifts kids activity kit'],
+ ['👗','Festive ethnic wear','Indian festive ethnic wear'],
+ ['💍','Festive jewellery & accessories','Indian festive jewellery accessories'],
+ ['🥿','Ethnic footwear','Indian festive ethnic footwear'],
+ ['🧴','Beauty & grooming gift sets','festive beauty grooming gift set'],
+ ['🛍️','Gift bags & wrapping','gift wrapping paper bags festive'],
+ ['🏵️','Pooja flowers & offerings','puja flowers offering items'],
+ ['🧹','Pre-festival cleaning supplies','home deep cleaning supplies'],
+ ['🍽️','Serving trays & dinnerware','festive serving tray dinnerware'],
+ ['🥣','Kitchen & hosting essentials','Diwali party kitchen hosting essentials'],
+ ['🪑','Extra seating & floor cushions','floor cushions poufs seating'],
+ ['🧯','Fire-safety essentials','home fire extinguisher fire blanket safety'],
+ ['🔋','Batteries & power accessories','AA batteries extension board certified'],
+ ['🌿','Indoor plants & planters','indoor plants decorative planters gift'],
+ ['🧺','Storage & organiser baskets','home storage organiser baskets'],
+ ['📦','Return gifts & bulk packs','Diwali return gifts bulk pack'],
+ ['🐾','Pet comfort essentials','pet calming bed blanket Diwali'],
+ ['📸','Festive photo props','Diwali festive photo booth props'],
+ ['🎊','Party supplies & paper decor','Diwali party supplies paper decor'],
+ ['♻️','Reusable & low-waste decor','reusable eco friendly festival decorations']
+ ];
+ const stashStores=[
+ {name:'Google Shopping',url:q=>'https://www.google.com/search?tbm=shop&q='+encodeURIComponent(q)},
+ {name:'Amazon India',url:q=>'https://www.amazon.in/s?k='+encodeURIComponent(q)},
+ {name:'Flipkart',url:q=>'https://www.flipkart.com/search?q='+encodeURIComponent(q)},
+ {name:'Meesho',url:q=>'https://www.meesho.com/search?q='+encodeURIComponent(q)},
+ {name:'Shopsy',url:q=>'https://www.shopsy.in/search?q='+encodeURIComponent(q)},
+ {name:'Snapdeal',url:q=>'https://www.snapdeal.com/search?keyword='+encodeURIComponent(q)},
+ {name:'ShopClues',url:q=>'https://www.shopclues.com/search?q='+encodeURIComponent(q)},
+ {name:'JioMart',url:q=>'https://www.jiomart.com/search/'+encodeURIComponent(q)},
+ {name:'BigBasket',url:q=>'https://www.bigbasket.com/ps/?q='+encodeURIComponent(q)},
+ {name:'Blinkit',url:q=>'https://blinkit.com/s/?q='+encodeURIComponent(q)},
+ {name:'Zepto',url:q=>'https://www.zeptonow.com/search?query='+encodeURIComponent(q)},
+ {name:'Swiggy Instamart',url:q=>'https://www.swiggy.com/instamart/search?custom_back=true&query='+encodeURIComponent(q)},
+ {name:'IndiaMART',url:q=>'https://dir.indiamart.com/search.mp?ss='+encodeURIComponent(q)},
+ {name:'Myntra',url:q=>'https://www.myntra.com/'+encodeURIComponent(q.trim().replace(/\s+/g,'-'))},
+ {name:'AJIO',url:q=>'https://www.ajio.com/search/?text='+encodeURIComponent(q)},
+ {name:'Tata CLiQ',url:q=>'https://www.tatacliq.com/search/?searchCategory=all&text='+encodeURIComponent(q)},
+ {name:'Nykaa Fashion',url:q=>'https://www.nykaafashion.com/catalogsearch/result/?q='+encodeURIComponent(q)},
+ {name:'FirstCry',url:q=>'https://www.firstcry.com/search?q='+encodeURIComponent(q)},
+ {name:'Pepperfry',url:q=>'https://www.pepperfry.com/site_product/search?q='+encodeURIComponent(q)},
+ {name:'IKEA India',url:q=>'https://www.ikea.com/in/en/search/?q='+encodeURIComponent(q)},
+ {name:'Home Centre',url:q=>'https://www.homecentre.in/in/en/search?q='+encodeURIComponent(q)},
+ {name:'Fabindia',url:q=>'https://www.fabindia.com/search?q='+encodeURIComponent(q)},
+ {name:'Chumbak',url:q=>'https://www.chumbak.com/search?q='+encodeURIComponent(q)},
+ {name:'Ferns N Petals',url:q=>'https://www.fnp.com/search?search='+encodeURIComponent(q)},
+ {name:'IGP',url:q=>'https://www.igp.com/search?q='+encodeURIComponent(q)},
+ {name:'Craftsvilla',url:q=>'https://www.craftsvilla.com/search?q='+encodeURIComponent(q)},
+ {name:'Jaypore',url:q=>'https://www.jaypore.com/search?q='+encodeURIComponent(q)},
+ {name:'Urban Ladder',url:q=>'https://www.urbanladder.com/search?q='+encodeURIComponent(q)},
+ {name:'Moglix',url:q=>'https://www.moglix.com/search?query='+encodeURIComponent(q)},
+ {name:'IndustryBuying',url:q=>'https://www.industrybuying.com/search/?q='+encodeURIComponent(q)}
+ ];
+ featureBody.innerHTML='<div class="wish-studio-intro">Explore 40 Diwali essentials categories. Choose a category to open matching searches across 30 shopping websites and apps. Retailers control listings, delivery, price and availability; this app does not invent prices or claim stock.</div><label for="stashSearch">Find a category</label><input id="stashSearch" type="search" maxlength="80" placeholder="Search diyas, gifts, rangoli, lights…"><div class="stash-count" id="stashCount"></div><div class="dv-stash-modal-grid" id="stashCategoryGrid"></div><section class="stash-store-results" id="stashStoreResults" hidden><div class="stash-selected-head"><h3 id="stashSelectedTitle">Shopping options</h3><button type="button" class="tool-btn alt" id="stashBack">All categories</button></div><p id="stashSelectedQuery" class="tool-note"></p><div class="stash-store-grid" id="stashStoreGrid"></div></section><p class="tool-note">Shopping links open external retailer search pages. Some services may not deliver to every PIN code or may not support every category. Compare final price, seller reviews, delivery and return policy before buying.</p>';
+ const categoryGrid=$('stashCategoryGrid'), storeResults=$('stashStoreResults');
+ const renderStashCategories=(term='')=>{const q=term.trim().toLowerCase(),matches=stashCategories.filter(x=>(x[1]+' '+x[2]).toLowerCase().includes(q));$('stashCount').textContent=matches.length+' categories available';categoryGrid.innerHTML=matches.map((x,i)=>'<button type="button" class="dv-stash-category" data-stash-index="'+stashCategories.indexOf(x)+'"><span>'+x[0]+'</span><b>'+esc(x[1])+'</b><small>Compare shopping sites ↗</small></button>').join('')||'<p class="tool-note">No category found. Try another keyword.</p>';categoryGrid.querySelectorAll('[data-stash-index]').forEach(b=>b.addEventListener('click',()=>openStashCategory(Number(b.dataset.stashIndex))))};
+ const openStashCategory=index=>{const item=stashCategories[index];if(!item)return;const query=item[2]+' India';$('stashSelectedTitle').textContent=item[1];$('stashSelectedQuery').textContent='Search: '+item[2]+' · '+stashStores.length+' shopping destinations';$('stashStoreGrid').innerHTML=stashStores.map(p=>'<a class="outfit-store-link" href="'+p.url(query)+'" target="_blank" rel="noopener noreferrer"><span>'+esc(p.name)+'</span><small>Search '+esc(item[1])+' ↗</small></a>').join('');storeResults.hidden=false;categoryGrid.hidden=true;$('stashCount').textContent='Selected: '+item[1];storeResults.scrollIntoView({behavior:'smooth',block:'start'})};
+ $('stashSearch').addEventListener('input',()=>{categoryGrid.hidden=false;storeResults.hidden=true;renderStashCategories($('stashSearch').value)});$('stashBack').addEventListener('click',()=>{storeResults.hidden=true;categoryGrid.hidden=false;$('stashCount').textContent='Choose a category to compare stores.';categoryGrid.scrollIntoView({behavior:'smooth',block:'start'})});renderStashCategories();
  }else if(key==='outfits'){
  featureBody.innerHTML=`<div class="outfit-intro">Build your exact style profile. Apply filters to compare matching outfit searches across Indian shopping platforms. Marketplace prices and stock can change; open each result to verify the exact item, size, delivery and final price.</div>
 <div class="outfit-filter-grid">
