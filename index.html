@@ -128,7 +128,7 @@ body{background:#250711;color:#fff4dc}.shell{max-width:560px;margin:auto;backgro
     <button data-feature="plan"><span>📅</span><b>My Diwali Plan</b><small>Tasks, deadlines and progress</small></button>
     <button data-feature="shopping"><span>🛒</span><b>Shopping List</b><small>Save items and mark purchased</small></button>
   </div>
-  <div class="dv-section-heading"><h2>New Diwali Stash Collection</h2><button type="button" id="dvExploreStash" aria-label="Explore all Diwali shopping categories">Explore ›</button></div>
+  <div class="dv-section-heading"><h2>New Diwali Stash Collection</h2><button type="button" id="dvExploreStash" data-feature="stash" aria-label="Explore all Diwali shopping categories">Explore ›</button></div>
   <div class="dv-stash-row">
     <article class="dv-stash-card"><div class="dv-stash-image">🪔</div><b>LED Diya Set</b><small>Festive lighting</small><button data-stash-search="LED diya set">Find stores ↗</button></article>
     <article class="dv-stash-card"><div class="dv-stash-image">✨</div><b>Eco-friendly Decor</b><small>Decor & celebration</small><button data-stash-search="eco friendly Diwali decor">Find stores ↗</button></article>
@@ -553,7 +553,8 @@ function showFeature(key){
 }
 document.querySelectorAll('[data-feature]').forEach(btn=>btn.addEventListener('click',()=>showFeature(btn.dataset.feature)));
 const exploreStashButton=document.getElementById('dvExploreStash');
-if(exploreStashButton)exploreStashButton.addEventListener('click',()=>showFeature('stash'));
+if(exploreStashButton)exploreStashButton.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();try{showFeature('stash')}catch(error){console.error('Diwali Stash failed to open:',error);const body=document.getElementById('featureBody');if(body)body.innerHTML='<p class="tool-note">Shopping categories could not load. Please close this window and try again.</p>';const modal=document.getElementById('featureModal');if(modal){modal.classList.add('open');document.body.style.overflow='hidden'}}});
+document.addEventListener('click',function(e){const button=e.target&&e.target.closest?e.target.closest('#dvExploreStash'):null;if(!button)return;e.preventDefault();try{if(!document.getElementById('featureModal').classList.contains('open'))showFeature('stash')}catch(error){console.error('Explore fallback failed:',error)}},true);
 function closeFeature(){featureModal.classList.remove('open');document.body.style.overflow=''}
 $('closeFeature').addEventListener('click',closeFeature);featureModal.addEventListener('click',e=>{if(e.target===featureModal)closeFeature()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&featureModal.classList.contains('open'))closeFeature()});
