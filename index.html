@@ -83,7 +83,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const state={gender:'Men',age:'Adults',type:'Kurta Set',budget:12000,height:'Any height',skin:'Any skin tone',color:'Any color',fabrics:[],regions:[],fits:[],occasion:'Diwali Party',sort:'Featured',search:'',wishlist:[]};
-try{state.wishlist=JSON.parse(localStorage.getItem('diwaliStyleWishlist')||'[]')}catch(e){state.wishlist=[]}
+try{state.wishlist=JSON.parse(localStorage.getItem('diwaliStyleWishlist')||'[]').map(w=>typeof w==='string'?{key:w,title:w,query:w}:w)}catch(e){state.wishlist=[]}\nconst productCache=new Map();
 const types=['Kurta Set','Sherwani','Lehenga','Anarkali','Sarees','Kurta Pajama','Indo-Western','Kids Ethnic Wear','Co-ord Set','Gown','Salwar Suit','Nehru Jacket'];
 const heights=['Any height','Below 4′6″','4′6″–5′2″','5′3″–5′7″','5′8″–6′0″','Above 6′0″'];
 const skins=['Any skin tone','Fair / cool','Light / neutral','Medium / warm','Olive undertone','Deep / rich'];
@@ -151,7 +151,7 @@ function currentQuery(){
  return [gender,age,type,'Diwali festive',state.color==='Any color'?'':state.color,state.skin==='Any skin tone'?'':state.skin,state.height==='Any height'?'':state.height,...state.fabrics,...state.regions,...state.fits,state.occasion,state.search].filter(Boolean).join(' ');
 }
 function cardHTML(p,idx,isLive=false){
- const saved=state.wishlist.includes(p.id||p.title);
+ const id=p.id||p.title;productCache.set(String(id),p);const saved=state.wishlist.some(w=>w.key===String(id));
  const productUrl=p.url||'https://www.google.com/search?tbm=shop&q='+encodeURIComponent(p.query||p.title);
  const img=p.image||'';
  const price=Number.isFinite(Number(p.price))&&p.price!==null&&p.price!==undefined?'₹'+Number(p.price).toLocaleString('en-IN'):'';
@@ -182,8 +182,8 @@ function setType(v){state.type=v;document.querySelectorAll('[data-type]').forEac
 function openFilters(){buildOptions();$('filterScreen').classList.add('open');document.body.style.overflow='hidden'}
 function closeFilters(){ $('filterScreen').classList.remove('open');document.body.style.overflow=''}
 function saveWishlist(){localStorage.setItem('diwaliStyleWishlist',JSON.stringify(state.wishlist));$('wishCount').textContent=state.wishlist.length}
-function renderWishlist(){const saved=inspiration.filter(p=>state.wishlist.includes(p.title)||state.wishlist.includes(p.id));$('wishlistProducts').innerHTML=saved.length?saved.map((p,i)=>cardHTML(p,i,false)).join(''):'<div class="empty-state" style="grid-column:1/-1">Your wishlist is empty. Tap ♡ on a look to save it here.</div>'}
-function navigate(screen){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===screen));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));if(screen==='wishlistScreen')renderWishlist();if(screen==='categoriesScreen')$('categoryGrid').innerHTML=types.map((t,i)=>'<button class="category-tile" data-category="'+escapeHTML(t)+'"><b>'+['🧥','🤵','👗','🌺','🥻','🪷','✨','🧒','🧵','💃','👘','🧣'][i]+'</b>'+escapeHTML(t)+'</button>').join('')}
+function renderWishlist(){const saved=state.wishlist.map(w=>w.product||productCache.get(w.key)||w).filter(Boolean);$('wishlistProducts').innerHTML=saved.length?saved.map((p,i)=>cardHTML(p,i,!!p.source&&p.source!=='Style inspiration')).join(''):'<div class="empty-state" style="grid-column:1/-1">Your wishlist is empty. Tap ♡ on a look to save it here.</div>'}
+function navigate(screen){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===screen));document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));if(screen==='wishlistScreen')renderWishlist();if(screen==='categoriesScreen')$('categoryGrid').innerHTML=types.map((t,i)=>'<button class="category-tile" data-category="'+escapeHTML(t)+'"><b>'+['🧥','🤵','👗','🌺','🥻','🪷','✨','🧒','🧵','💃','👘','🧣'][i]+'</b>'+escapeHTML(t)+'</button>').join('')+'<div class="section-head" style="grid-column:1/-1;margin-top:12px"><h2>Shop across 27 platforms</h2></div>'+searchStores(currentQuery())}
 function clearAll(){Object.assign(state,{gender:'Men',age:'Adults',type:'Kurta Set',budget:12000,height:'Any height',skin:'Any skin tone',color:'Any color',fabrics:[],regions:[],fits:[],occasion:'Diwali Party',search:''});$('globalSearch').value='';document.querySelectorAll('[data-gender]').forEach(b=>b.classList.toggle('active',b.dataset.gender==='Men'));document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type==='Kurta Set'));document.querySelectorAll('[data-occasion]').forEach(b=>b.classList.toggle('active',b.dataset.occasion==='Diwali Party'));buildOptions();renderProducts()}
 document.addEventListener('click',e=>{
  const gender=e.target.closest('[data-gender]');if(gender){state.gender=gender.dataset.gender;document.querySelectorAll('[data-gender]').forEach(b=>b.classList.toggle('active',b.dataset.gender===state.gender));renderProducts();return}
@@ -193,8 +193,8 @@ document.addEventListener('click',e=>{
  const skin=e.target.closest('[data-skin]');if(skin){state.skin=skin.dataset.skin;$('skinOptions').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===skin));return}
  const color=e.target.closest('[data-color]');if(color){state.color=color.dataset.color;$('colorOptions').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===color));return}
  const occasion=e.target.closest('[data-occasion]');if(occasion){state.occasion=occasion.dataset.occasion;document.querySelectorAll('[data-occasion]').forEach(b=>b.classList.toggle('active',b.dataset.occasion===state.occasion));return}
- const heart=e.target.closest('[data-heart]');if(heart){const id=heart.dataset.heart;if(state.wishlist.includes(id))state.wishlist=state.wishlist.filter(x=>x!==id);else state.wishlist.push(id);saveWishlist();heart.classList.toggle('saved',state.wishlist.includes(id));heart.textContent=state.wishlist.includes(id)?'♥':'♡';toast(state.wishlist.includes(id)?'Saved to wishlist':'Removed from wishlist');return}
- const compare=e.target.closest('[data-compare]');if(compare){const q=currentQuery();$('categoryGrid').innerHTML=searchStores(q);navigate('categoriesScreen');return}
+ const heart=e.target.closest('[data-heart]');if(heart){const id=heart.dataset.heart;const exists=state.wishlist.some(w=>w.key===id);if(exists)state.wishlist=state.wishlist.filter(w=>w.key!==id);else{const product=productCache.get(id)||inspiration.find(p=>p.title===id)||{id,title:id,query:currentQuery()};state.wishlist.push({key:id,product});}saveWishlist();heart.classList.toggle('saved',!exists);heart.textContent=!exists?'♥':'♡';toast(!exists?'Saved to wishlist':'Removed from wishlist');return}
+ const compare=e.target.closest('[data-compare]');if(compare){navigate('categoriesScreen');$('categoryGrid').innerHTML=searchStores(currentQuery());return}
  const category=e.target.closest('[data-category]');if(category){setType(category.dataset.category);navigate('homeScreen');return}
  const nav=e.target.closest('[data-screen]');if(nav){navigate(nav.dataset.screen);return}
 });
