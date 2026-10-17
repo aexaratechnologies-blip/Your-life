@@ -434,6 +434,7 @@ function showFeature(key){
   return {title:selected[0],dress:selected[1],accessories:selected[2],palette,price,heightTip,fitTip,occasionTip,ageLabel:age==='50+'?'50+ years':age+' years'};
  };
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function renderOutfits(){
   const get=id=>($(id)?.value||'').trim();
   const gender=get('outfitGender'),age=get('outfitAge'),height=get('outfitHeight'),mood=get('outfitMood'),occasion=get('outfitOccasion'),budget=get('outfitBudget'),fit=get('outfitFit'),colour=get('outfitColour');
