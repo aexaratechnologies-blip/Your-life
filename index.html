@@ -412,7 +412,30 @@ function showFeature(key){
  featureBody.innerHTML='<p class="tool-note">Your plan is saved on this device and stays after refresh. Add tasks you actually need to complete before the celebration.</p><div class="budget-entry-grid"><div><label for="planTask">Task</label><input id="planTask" maxlength="90" placeholder="e.g. Buy puja essentials"></div><div><label for="planDue">Due date</label><input id="planDue" type="date"></div></div><div class="budget-entry-grid"><div><label for="planCategory">Category</label><select id="planCategory"><option>Shopping</option><option>Cleaning</option><option>Decor</option><option>Food</option><option>Family</option><option>Other</option></select></div><div><label for="planPriority">Priority</label><select id="planPriority"><option>Normal</option><option>High</option><option>Low</option></select></div></div><button class="tool-btn" id="addPlanTask">Add to my plan +</button><div class="budget-summary" id="planSummary" aria-live="polite"></div><div id="planTaskList"></div><button class="tool-btn alt" id="seedPlan">Add suggested Diwali tasks</button>';
  let planItems=[];try{const stored=JSON.parse(localStorage.getItem('dv_plan_items')||'[]');if(Array.isArray(stored))planItems=stored.filter(x=>x&&typeof x.text==='string')}catch(e){}
  const savePlan=()=>{try{localStorage.setItem('dv_plan_items',JSON.stringify(planItems))}catch(e){toast('Could not save on this device. Check browser storage settings.')}};
- const renderPlan=()=>{const done=planItems.filter(x=>x.done).length;$('planSummary').innerHTML='<div><small>Tasks completed</small><b>'+done+' / '+planItems.length+'</b></div><div><small>Still to do</small><b>'+(planItems.length-done)+'</b></div><div class="progress-track"><div class="progress-fill" style="width:'+(planItems.length?done/planItems.length*100:0)+'%"></div></div>';$('planTaskList').innerHTML=planItems.length?planItems.map((x,i)=>'<div class="budget-row plan-row"><label class="plan-task-label"><input type="checkbox" data-plan-done="'+i+'" '+(x.done?'checked':'')+'><span class="'+(x.done?'plan-done':'')+'"><b>'+esc(x.text)+'</b><small>'+esc(x.category)+' · '+esc(x.priority)+(x.due?' · Due '+esc(x.due):' · No due date')+'</small></span></label><button class="tool-btn alt" data-plan-remove="'+i+'">Delete</button></div>').join(''):'<p class="tool-note">No tasks yet. Add your first task above or load the suggested starter list.</p>'; $('planTaskList').querySelectorAll('[data-plan-done]').forEach(b=>b.addEventListener('change',()=>{planItems[Number(b.dataset.planDone)].done=b.checked;savePlan();renderPlan()}));$('planTaskList').querySelectorAll('[data-plan-remove]').forEach(b=>b.addEventListener('click',()=>{planItems.splice(Number(b.dataset.planRemove),1);savePlan();renderPlan()}))};
+ const renderPlan=()=>{
+   const total=planItems.length;
+   const done=planItems.filter(x=>x.done===true).length;
+   const summary=$('planSummary'), list=$('planTaskList');
+   summary.innerHTML='<div><small>Tasks completed</small><b>'+done+' / '+total+'</b></div><div><small>Still to do</small><b>'+(total-done)+'</b></div><div class="progress-track"><div class="progress-fill" style="width:'+(total?Math.round(done/total*100):0)+'%"></div></div>';
+   if(total===0){list.innerHTML='<p class="tool-note">No tasks yet. Add your first task above or load the suggested starter list.</p>';return}
+   list.innerHTML=planItems.map((x,i)=>{
+     const taskText=esc(String(x.text||'Untitled task'));
+     const category=esc(String(x.category||'Other'));
+     const priority=esc(String(x.priority||'Normal'));
+     const due=x.due?' · Due '+esc(String(x.due)):' · No due date';
+     return '<div class="budget-row plan-row"><label class="plan-task-label"><input type="checkbox" data-plan-done="'+i+'" '+(x.done===true?'checked':'')+'><span class="'+(x.done===true?'plan-done':'')+'"><b>'+taskText+'</b><small>'+category+' · '+priority+due+'</small></span></label><button type="button" class="tool-btn alt" data-plan-remove="'+i+'">Delete</button></div>';
+   }).join('');
+   list.querySelectorAll('[data-plan-done]').forEach(b=>b.addEventListener('change',()=>{
+     const index=Number(b.dataset.planDone);
+     if(!Number.isInteger(index)||!planItems[index])return;
+     planItems[index].done=b.checked;savePlan();renderPlan();
+   }));
+   list.querySelectorAll('[data-plan-remove]').forEach(b=>b.addEventListener('click',()=>{
+     const index=Number(b.dataset.planRemove);
+     if(!Number.isInteger(index)||!planItems[index])return;
+     planItems.splice(index,1);savePlan();renderPlan();
+   }));
+ }
  $('addPlanTask').addEventListener('click',()=>{const text=$('planTask').value.trim();if(!text){toast('Write a task first.');$('planTask').focus();return}planItems.push({text,due:$('planDue').value,category:$('planCategory').value,priority:$('planPriority').value,done:false});savePlan();$('planTask').value='';renderPlan();toast('Task added to your plan.')});
  $('seedPlan').addEventListener('click',()=>{const starter=[['Set total budget','Other','High'],['Make shopping list','Shopping','High'],['Buy puja essentials','Shopping','High'],['Prepare home and entryway','Cleaning','Normal'],['Arrange lights and decor','Decor','Normal'],['Plan sweets and food','Food','Normal'],['Confirm family gathering details','Family','Normal']];let added=0;starter.forEach(([text,category,priority])=>{if(!planItems.some(x=>x.text.toLowerCase()===text.toLowerCase())){planItems.push({text,category,priority,due:'',done:false});added++}});savePlan();renderPlan();toast(added?added+' suggested tasks added.':'Suggested tasks are already in your plan.')});renderPlan();
  }else if(key==='shopping'){
