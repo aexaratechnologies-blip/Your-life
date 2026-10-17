@@ -86,6 +86,25 @@
 
 /* Simplified mobile-first outfit flow and app navigation */
 .primary-outfit-section .outfit-filter-grid>div:nth-child(3),.primary-outfit-section .outfit-filter-grid>div:nth-child(4),.primary-outfit-section .outfit-filter-grid>div:nth-child(5),.primary-outfit-section .outfit-filter-grid>div:nth-child(6),.primary-outfit-section .outfit-filter-grid>div:nth-child(8),.primary-outfit-section .outfit-filter-grid>div:nth-child(n+10){display:none!important}.primary-outfit-section .outfit-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.primary-outfit-section .outfit-filter-grid select{min-height:48px}.outfit-photo-grid figure.image-failed{display:none}.outfit-photo-grid img{object-fit:cover;object-position:center 20%}.outfit-store-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-side-nav{display:flex;gap:8px;overflow-x:auto;padding:5px 0 14px;scrollbar-width:none;position:relative;z-index:2}.app-side-nav a{flex:0 0 auto;text-decoration:none;border:1px solid var(--line);background:#ffffff08;color:var(--ink);border-radius:999px;padding:10px 13px;font-size:12px;font-weight:800}.app-side-nav a[aria-current="page"]{background:#ffc76a1c;border-color:#ffc76a70;color:#ffd889}.firework-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.42}.firework{position:absolute;bottom:-40px;font-size:19px;animation:fireworkRise linear infinite;filter:drop-shadow(0 0 8px #ffb94d)}.firework:nth-child(1){left:8%;animation-duration:11s}.firework:nth-child(2){left:25%;animation-duration:14s;animation-delay:-4s}.firework:nth-child(3){left:48%;animation-duration:12s;animation-delay:-7s}.firework:nth-child(4){left:70%;animation-duration:15s;animation-delay:-3s}.firework:nth-child(5){left:90%;animation-duration:13s;animation-delay:-9s}@keyframes fireworkRise{0%{transform:translateY(0) scale(.5) rotate(0);opacity:0}10%{opacity:.65}65%{opacity:.55}100%{transform:translateY(-115vh) scale(1.5) rotate(220deg);opacity:0}}@media(max-width:390px){.primary-outfit-section .outfit-filter-grid{grid-template-columns:1fr}.outfit-photo-grid{gap:6px;padding:7px}.outfit-photo-grid img{height:180px}.outfit-card-copy h3{font-size:17px}}@media(prefers-reduced-motion:reduce){.firework{animation-duration:30s!important}}
+
+/* Live product catalogue cards and accessible status states */
+.outfit-loading,.live-api-status,.live-api-warning{border:1px solid #ffc76a38;background:#ffc76a0a;border-radius:13px;padding:13px;margin:12px 0;color:#f5e7ff;font-size:12px;line-height:1.55}
+.live-api-warning{border-color:#ff9e6b66;background:#ff7a4310}.live-api-warning p{margin:6px 0 0;color:#e4d5f0}
+.live-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.live-product-card{min-width:0;overflow:hidden;border:1px solid #ffc76a30;border-radius:14px;background:#140d20;display:flex;flex-direction:column}
+.live-product-image{display:block;background:#24172e;min-height:150px;overflow:hidden}
+.live-product-image img{display:block;width:100%;height:190px;object-fit:contain;background:#fff}
+.live-product-card.product-image-failed .live-product-image{display:none}
+.live-product-copy{padding:10px;display:flex;flex-direction:column;gap:7px;flex:1}
+.live-product-source{font-size:9px;font-weight:900;letter-spacing:.08em;color:#9ef0c0}
+.live-product-copy h4{font-size:12px;line-height:1.4;margin:0;color:#fff8ee;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:50px}
+.live-product-price{font-size:16px;font-weight:900;color:#ffe0a1;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.live-product-price del{font-size:10px;color:#b9a8cb;font-weight:500}
+.product-discount{font-size:9px;border-radius:5px;background:#1f513c;color:#a8f4c8;padding:3px 5px}
+.live-product-meta{font-size:10px;color:#b9a8cb;line-height:1.45}
+.live-product-buy{display:block;text-align:center;text-decoration:none;background:linear-gradient(100deg,#ffc76a,#ff8758);color:#241126;border-radius:9px;padding:10px 7px;font-size:11px;font-weight:900;margin-top:auto}
+@media(min-width:650px){.live-product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.live-product-image img{height:220px}}
+@media(max-width:350px){.live-product-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -274,32 +293,62 @@ function showFeature(key){
   return {title:selected[0],dress:selected[1],accessories:selected[2],palette,price,heightTip,fitTip,occasionTip,ageLabel:age==='50+'?'50+ years':age+' years'};
  };
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function renderOutfits(){
+ async function renderOutfits(){
+  const button=$('rollOutfit');
   const get=id=>($(id)?.value||'').trim();
   const gender=get('outfitGender')||'male',age=get('outfitAge')||'20-25',budget=get('outfitBudget')||'2500',size=get('outfitSize');
-  const people=gender==='any'?['male','female']:[gender],bucket=ageBucket(age),results=[];
+  const people=gender==='any'?['male','female']:[gender];
   const budgetText=budget==='any'?'Any budget':'Up to ₹'+Number(budget).toLocaleString('en-IN');
   const stores=[
-   {name:'Amazon India',url:q=>'https://www.amazon.in/s?k='+encodeURIComponent(q),note:'Marketplace'},
-   {name:'Myntra',url:q=>'https://www.myntra.com/'+encodeURIComponent(q.replace(/\s+/g,'-')),note:'Fashion store'},
-   {name:'Flipkart',url:q=>'https://www.flipkart.com/search?q='+encodeURIComponent(q),note:'Marketplace'},
-   {name:'AJIO',url:q=>'https://www.ajio.com/search/?text='+encodeURIComponent(q),note:'Fashion store'}
+   {name:'Amazon India',url:q=>'https://www.amazon.in/s?k='+encodeURIComponent(q),note:'Marketplace search'},
+   {name:'Myntra',url:q=>'https://www.myntra.com/'+encodeURIComponent(q.replace(/\s+/g,'-')),note:'Fashion search'},
+   {name:'Flipkart',url:q=>'https://www.flipkart.com/search?q='+encodeURIComponent(q),note:'Marketplace search'},
+   {name:'AJIO',url:q=>'https://www.ajio.com/search/?text='+encodeURIComponent(q),note:'Fashion search'}
   ];
-  people.forEach(person=>{
+  const ageTerm=age==='5-9'?'kids 5 to 9 years':age==='10-15'?'kids 10 to 15 years':age==='16-19'?'teen 16 to 19 years':age==='20-25'?'young adult':age==='26-35'?'adult':age==='36-50'?'adult mature':'mature adult';
+  const sections=people.map(person=>{
    const label=person==='male'?'Men / boys':'Women / girls';
-   const ageTerm=age==='5-9'?'kids 5 to 9 years':age==='10-15'?'kids 10 to 15 years':age==='16-19'?'teen 16 to 19 years':age==='20-25'?'young adult':age==='26-35'?'adult':age==='36-50'?'adult mature':'mature adult';
    const productType=person==='male'?'men boys festive ethnic kurta pajama set':'women girls festive ethnic wear kurta set';
-   const query=[productType,ageTerm,size?('size '+size):'',budget==='any'?'':'under Rs '+budget].filter(Boolean).join(' ');
-   const imgs=outfitImages[person][bucket];
-   const storeCards=stores.map(p=>'<a class="outfit-store-link" href="'+p.url(query)+'" target="_blank" rel="noopener noreferrer"><span>'+esc(p.name)+'</span><small>'+p.note+' · View products ↗</small></a>').join('');
-   const google='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(query);
-   const heading=person==='male'?'Festive Kurta / Ethnic Set':'Festive Ethnic Wear Set';
-   results.push('<article class="outfit-result-card"><div class="outfit-card-head"><span>'+label+'</span><span>'+esc(age==='50+'?'50+ years':age+' years')+'</span></div><div class="outfit-photo-grid"><figure><img src="'+imgs[0]+'" alt="'+label+' festive outfit inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Style inspiration — not a purchasable product listing</figcaption></figure><figure><img src="'+imgs[1]+'" alt="'+label+' alternative festive outfit inspiration" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'image-failed\')"><figcaption>Alternative style inspiration</figcaption></figure></div><div class="outfit-card-copy"><h3>'+heading+'</h3><div class="outfit-tags"><span>Budget: '+esc(budgetText)+'</span><span>Size: '+esc(size||'Choose on store')+'</span></div><p><b>Buying tip:</b> Check the exact size chart, seller ratings, fabric details, return policy and checkout price before ordering.</p><a class="outfit-shopping-primary" href="'+google+'" target="_blank" rel="noopener noreferrer">Compare current products & prices ↗</a><div class="outfit-store-grid">'+storeCards+'</div><p class="tool-note">These are live store searches, not verified individual products. The listed price and product photo are shown by the retailer after opening the search.</p></div></article>');
+   const query=[productType,ageTerm,size?('size '+size):''].filter(Boolean).join(' ');
+   const storeCards=stores.map(p=>'<a class="outfit-store-link" href="'+p.url(query+(budget==='any'?'':' under Rs '+budget))+'" target="_blank" rel="noopener noreferrer"><span>'+esc(p.name)+'</span><small>'+p.note+' ↗</small></a>').join('');
+   return {person,label,query,storeCards};
   });
-  $('outfitResults').innerHTML=results.join('');
+  $('outfitResults').innerHTML='<div class="outfit-loading" role="status">Checking live product availability and prices…</div>';
+  if(button){button.disabled=true;button.textContent='Searching live products…';}
+  try{
+   const resolved=await Promise.all(sections.map(async section=>{
+    const params=new URLSearchParams({q:section.query});
+    if(budget!=='any')params.set('maxPrice',budget);
+    try{
+     const response=await fetch('/api/products?'+params.toString(),{headers:{Accept:'application/json'}});
+     const data=await response.json();
+     return {...section,data};
+    }catch(e){return {...section,data:{ok:false,code:'NETWORK_ERROR',message:'Could not reach the live product service.'}};}
+   }));
+   $('outfitResults').innerHTML=resolved.map(section=>{
+    const data=section.data||{},products=Array.isArray(data.products)?data.products:[];
+    const productCards=products.map(p=>{
+     const price='₹'+Number(p.price).toLocaleString('en-IN');
+     const mrp=p.mrp&&p.mrp>p.price?'<del>₹'+Number(p.mrp).toLocaleString('en-IN')+'</del>':'';
+     const discount=p.mrp&&p.mrp>p.price?'<span class="product-discount">'+Math.round((p.mrp-p.price)/p.mrp*100)+'% off</span>':'';
+     return '<article class="live-product-card"><a class="live-product-image" href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer"><img src="'+esc(p.image)+'" alt="'+esc(p.title)+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest(\'.live-product-card\').classList.add(\'product-image-failed\')"></a><div class="live-product-copy"><div class="live-product-source">FLIPKART · LIVE CATALOGUE</div><h4>'+esc(p.title)+'</h4><div class="live-product-price">'+price+' '+mrp+' '+discount+'</div><div class="live-product-meta">'+(p.brand?esc(p.brand)+' · ':'')+(p.size?'Size '+esc(p.size):'Check available sizes on store')+'</div><a class="live-product-buy" href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer">View product & buy ↗</a></div></article>';
+    }).join('');
+    let status='';
+    if(products.length)status='<p class="live-api-status">Live catalogue returned '+products.length+' in-stock result(s). Price and availability can change at checkout. Checked '+new Date(data.checkedAt||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'.</p>';
+    else if(data.code==='AFFILIATE_CREDENTIALS_MISSING')status='<div class="live-api-warning"><b>Live product catalogue needs account credentials</b><p>Flipkart Affiliate API credentials are not configured yet. Until they are added, the app will not invent product prices or pretend inspiration photos are real products.</p></div>';
+    else if(data.ok)status='<p class="live-api-status">No in-stock catalogue items matched these filters. Try a higher budget or a broader size selection.</p>';
+    else status='<div class="live-api-warning"><b>Live product search unavailable</b><p>'+esc(data.message||'Try again shortly.')+'</p></div>';
+    const google='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(section.query+(budget==='any'?'':' under Rs '+budget));
+    return '<section class="outfit-result-card"><div class="outfit-card-head"><span>'+section.label+'</span><span>'+esc(age==='50+'?'50+ years':age+' years')+'</span></div><div class="outfit-card-copy"><h3>'+ (section.person==='male'?'Festive Kurta / Ethnic Sets':'Festive Ethnic Wear Sets')+'</h3><div class="outfit-tags"><span>Budget: '+esc(budgetText)+'</span><span>Size: '+esc(size||'Select on retailer')+'</span></div>'+status+(products.length?'<div class="live-product-grid">'+productCards+'</div>':'')+'<p><b>More shopping options</b> — these open retailer searches, not verified individual listings.</p><div class="outfit-store-grid">'+section.storeCards+'</div><a class="outfit-shopping-primary" href="'+google+'" target="_blank" rel="noopener noreferrer">Compare more products on Google Shopping ↗</a><p class="tool-note">Confirm the size chart, seller, delivery charges, return policy and final checkout price before ordering.</p></div></section>';
+   }).join('');
+  }catch(error){
+   $('outfitResults').innerHTML='<div class="live-api-warning"><b>Could not complete the search</b><p>Please check your connection and try again.</p></div>';
+  }finally{
+   if(button){button.disabled=false;button.textContent='Find matching outfits';}
+  }
  }
  $('rollOutfit').addEventListener('click',renderOutfits);
- ['outfitGender','outfitAge','outfitHeight','outfitMood','outfitOccasion','outfitBudget','outfitFit','outfitColour'].forEach(id=>$(id).addEventListener('change',renderOutfits));
+ ['outfitGender','outfitAge','outfitBudget','outfitSize'].forEach(id=>$(id).addEventListener('change',renderOutfits));
  renderOutfits();
  }else if(key==='rangoli'){
  featureBody.innerHTML='<p class="tool-note">Choose a palette to refresh this generated floral pattern.</p><div class="palette-row"><button class="palette-dot" data-palette="0" style="background:linear-gradient(135deg,#ffb84f,#ff5d91,#a58bff)" aria-label="Sunset palette"></button><button class="palette-dot" data-palette="1" style="background:linear-gradient(135deg,#63e6be,#73b7ff,#fff0a8)" aria-label="Peacock palette"></button><button class="palette-dot" data-palette="2" style="background:linear-gradient(135deg,#ff7070,#ffc76a,#fff0e0)" aria-label="Marigold palette"></button></div><div class="rangoli-wrap" id="rangoliArt"></div><button class="tool-btn" id="newRangoli">Generate another pattern ↻</button><p class="tool-note">Digital design inspiration; use rangoli powder safely and keep paths clear.</p>';
