@@ -1,9 +1,14 @@
 {
-  "name": "your-life",
+  "name": "diwali-prank-box",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
-  "scripts": {"dev":"vite","build":"vite build","preview":"vite preview"},
-  "dependencies": {"@three-ws/walk":"^0.3.0","@vitejs/plugin-react":"latest","vite":"latest","react":"latest","react-dom":"latest","three":"latest"},
-  "devDependencies": {}
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1"
+  }
 }

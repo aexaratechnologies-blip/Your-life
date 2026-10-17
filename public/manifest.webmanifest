@@ -1,0 +1,17 @@
+{
+  "name": "Diwali Prank Box",
+  "short_name": "Prank Box",
+  "description": "Five playful Diwali pranks in one tiny app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#10091c",
+  "theme_color": "#12091f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
